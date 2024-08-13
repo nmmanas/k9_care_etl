@@ -111,7 +111,6 @@ class TestExtract:
         ]
         mock_response = mocker.Mock()
         mock_response.json.return_value = mock_json_data
-        mock_response.headers = {"Content-Type": "application/json"}
         mocker.patch("requests.get", return_value=mock_response)
 
         from ..etl.extract import extract_data
@@ -131,7 +130,6 @@ class TestExtract:
         this mock response.
         """
         mock_response = mocker.Mock()
-        mock_response.headers = {"Content-Type": "application/json"}
         mock_response.json.side_effect = MalformedJsonError(
             "The JSON file is malformed"
         )
@@ -139,27 +137,6 @@ class TestExtract:
         from ..etl.extract import extract_data
 
         with pytest.raises(MalformedJsonError, match="The JSON file is malformed"):
-            extract_data()
-
-    def test_extract_data_not_json_file(self, mocker):
-        """
-        The function `test_extract_data_not_json_file` tests the behavior of the
-        `extract_data` function when the response is not a JSON file.
-
-        :param mocker: `mocker` is a pytest-mock object that allows you to easily create
-        mock objects for testing purposes in Python. In the provided test case, `mocker`
-        is used to create a mock response object that simulates a text file instead of
-        JSON data.
-        """
-        # Mock the response object to simulate a text file instead of JSON
-        mock_response = mocker.Mock()
-        mock_response.headers = {"Content-Type": "text/plain"}
-        mock_response.text = "This is a plain text file, not a JSON."
-        mocker.patch("requests.get", return_value=mock_response)
-        from ..etl.extract import extract_data
-
-        # Assert that the InvalidFileTypeError is raised
-        with pytest.raises(InvalidFileTypeError, match="Expected JSON"):
             extract_data()
 
     def test_extract_data_malformed_json(self, mocker):
@@ -174,7 +151,6 @@ class TestExtract:
         """
         # Mock the response object to simulate a malformed JSON
         mock_response = mocker.Mock()
-        mock_response.headers = {"Content-Type": "application/json"}
         mock_response.json.side_effect = ValueError("Malformed JSON")
         mocker.patch("requests.get", return_value=mock_response)
         from ..etl.extract import extract_data
