@@ -111,6 +111,7 @@ class TestExtract:
         ]
         mock_response = mocker.Mock()
         mock_response.json.return_value = mock_json_data
+        mock_response.headers = {"Content-Type": "application/json"}
         mocker.patch("requests.get", return_value=mock_response)
 
         from ..etl.extract import extract_data
@@ -130,11 +131,14 @@ class TestExtract:
         this mock response.
         """
         mock_response = mocker.Mock()
-        mock_response.json.side_effect = ValueError("Invalid file type")
+        mock_response.headers = {"Content-Type": "application/json"}
+        mock_response.json.side_effect = MalformedJsonError(
+            "The JSON file is malformed"
+        )
         mocker.patch("requests.get", return_value=mock_response)
         from ..etl.extract import extract_data
 
-        with pytest.raises(ValueError, match="Invalid file type"):
+        with pytest.raises(MalformedJsonError, match="The JSON file is malformed"):
             extract_data()
 
     def test_extract_data_not_json_file(self, mocker):
