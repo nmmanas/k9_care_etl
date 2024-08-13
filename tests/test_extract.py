@@ -1,7 +1,7 @@
 import pytest
 import requests
 
-from ..etl.exceptions import InvalidFileTypeError, MalformedJsonError
+from ..etl.exceptions import MalformedJsonError
 
 
 class TestExtract:

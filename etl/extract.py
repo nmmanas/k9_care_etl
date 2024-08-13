@@ -4,7 +4,7 @@ import time
 import requests
 
 from .config import Config
-from .exceptions import InvalidFileTypeError, MalformedJsonError
+from .exceptions import MalformedJsonError
 
 
 def get_resource():
@@ -42,16 +42,12 @@ def extract_data():
     try:
         response = get_resource()
 
-        # Check if the response is JSON
-        if response.headers.get("Content-Type") != "application/json":
-            raise InvalidFileTypeError("Expected JSON, received a different file type")
-
         # Attempt to parse JSON content
         try:
             return response.json()
         except ValueError as e:
             raise MalformedJsonError("The JSON file is malformed") from e
 
-    except (InvalidFileTypeError, MalformedJsonError) as e:
+    except MalformedJsonError as e:
         logging.error(f"Error extracting data: {e}")
         raise
