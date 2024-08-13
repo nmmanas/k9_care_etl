@@ -1,7 +1,14 @@
+import pytest
+import requests
+
+from ..etl.exceptions import InvalidFileTypeError, MalformedJsonError
+
+
 class TestExtract:
     """
     The `TestExtract` class contains unit tests for the `get_resource` and
-    `extract_data` functions.
+    `extract_data` functions, mocking responses and testing various scenarios such as
+    status codes, network errors, and JSON data extraction.
     """
 
     def test_get_resource(self, mocker):
@@ -24,6 +31,67 @@ class TestExtract:
 
         assert response == mock_response
         assert response.status_code == 200
+
+    def test_get_resource_status_code(self, mocker):
+        """
+        The function `test_get_resource_status_code` tests the status code returned by
+        the `get_resource` function.
+
+        :param mocker: The `mocker` parameter in the test function is used for creating
+        mock objects and patching functions or methods during testing. In the provided
+        test case, `mocker` is used to create a mock response object with a status code
+        of 404 and patch the `requests.get` function to return this mocked response
+        object.
+        """
+        mock_response = mocker.Mock()
+        mock_response.status_code = 404
+        mocker.patch("requests.get", return_value=mock_response)
+        from ..etl.extract import get_resource
+
+        response = get_resource()
+
+        assert response.status_code == 404
+
+    def test_get_resource_network_down(self, mocker):
+        """
+        The function `test_get_resource_network_down` tests the behavior of the
+        `get_resource` function when a `ConnectionError` with the message
+        "Network is down" is raised.
+
+        :param mocker: The `mocker` parameter in the `test_get_resource_network_down`
+        function is used as a fixture provided by the `pytest-mock` library. It allows
+        you to easily mock objects and functions for testing purposes. In this specific
+        test case, `mocker` is used to patch the `requests.get` function.
+        """
+        mocker.patch(
+            "requests.get",
+            side_effect=requests.exceptions.ConnectionError("Network is down"),
+        )
+        from ..etl.extract import get_resource
+
+        with pytest.raises(
+            requests.exceptions.ConnectionError, match="Network is down"
+        ):
+            get_resource()
+
+    def test_get_resource_missing_resource(self, mocker):
+        """
+        The function `test_get_resource_missing_resource` tests the behavior of the
+        `get_resource` function when a resource is missing.
+
+        :param mocker: The `mocker` parameter in the test function is used for creating
+        mock objects and patching functions during testing. In this specific test case,
+        `mocker` is being used to create a mock response object with a status code of
+        404 and patch the `requests.get` function to return this mock response object.
+        """
+        mock_response = mocker.Mock()
+        mock_response.status_code = 404
+        mocker.patch("requests.get", return_value=mock_response)
+        from ..etl.extract import get_resource
+
+        response = get_resource()
+
+        assert response.status_code == 404
 
     def test_extract_data(self, mocker):
         """
@@ -50,3 +118,63 @@ class TestExtract:
         data = extract_data()
 
         assert data == mock_json_data
+
+    def test_extract_data_invalid_file_type(self, mocker):
+        """
+        The function `test_extract_data_invalid_file_type` tests the `extract_data`
+        function by mocking a response with an invalid file type error.
+
+        :param mocker: `mocker` is a pytest-mock object that allows you to create mock
+        objects for testing purposes. In the provided test case, `mocker` is used to
+        create a mock response object and patch the `requests.get` function to return
+        this mock response.
+        """
+        mock_response = mocker.Mock()
+        mock_response.json.side_effect = ValueError("Invalid file type")
+        mocker.patch("requests.get", return_value=mock_response)
+        from ..etl.extract import extract_data
+
+        with pytest.raises(ValueError, match="Invalid file type"):
+            extract_data()
+
+    def test_extract_data_not_json_file(self, mocker):
+        """
+        The function `test_extract_data_not_json_file` tests the behavior of the
+        `extract_data` function when the response is not a JSON file.
+
+        :param mocker: `mocker` is a pytest-mock object that allows you to easily create
+        mock objects for testing purposes in Python. In the provided test case, `mocker`
+        is used to create a mock response object that simulates a text file instead of
+        JSON data.
+        """
+        # Mock the response object to simulate a text file instead of JSON
+        mock_response = mocker.Mock()
+        mock_response.headers = {"Content-Type": "text/plain"}
+        mock_response.text = "This is a plain text file, not a JSON."
+        mocker.patch("requests.get", return_value=mock_response)
+        from ..etl.extract import extract_data
+
+        # Assert that the InvalidFileTypeError is raised
+        with pytest.raises(InvalidFileTypeError, match="Expected JSON"):
+            extract_data()
+
+    def test_extract_data_malformed_json(self, mocker):
+        """
+        The function `test_extract_data_malformed_json` tests the extraction of data
+        from a malformed JSON response by mocking the response object.
+
+        :param mocker: The `mocker` parameter in the test function is used for mocking
+        objects and functions in Python tests. In this specific test case, `mocker` is
+        being used to create a mock response object for simulating a scenario where the
+        JSON data is malformed.
+        """
+        # Mock the response object to simulate a malformed JSON
+        mock_response = mocker.Mock()
+        mock_response.headers = {"Content-Type": "application/json"}
+        mock_response.json.side_effect = ValueError("Malformed JSON")
+        mocker.patch("requests.get", return_value=mock_response)
+        from ..etl.extract import extract_data
+
+        # Assert that the MalformedJsonError is raised
+        with pytest.raises(MalformedJsonError, match="The JSON file is malformed"):
+            extract_data()
