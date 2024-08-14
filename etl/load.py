@@ -1,9 +1,6 @@
-import os
-
 import psycopg2
-from dotenv import load_dotenv
 
-load_dotenv()
+from .config import Config
 
 
 def load_data(data):
@@ -21,7 +18,7 @@ def load_data(data):
         },
     ]
     """
-    DB_URI = os.getenv("DB_URI")
+    DB_URI = Config.db_uri
     conn = psycopg2.connect(DB_URI)
     cursor = conn.cursor()
 
