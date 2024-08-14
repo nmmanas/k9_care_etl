@@ -1,9 +1,14 @@
+import hashlib
+
 from spellchecker import SpellChecker
 
 from .base_transformer import BaseTransformer
 
 
 class FactTransformer(BaseTransformer):
+    def __init__(self, data_repository):
+        self.data_repository = data_repository
+
     def transform(self, data):
         """
         The `transform_data` function in Python simply returns the input data without
@@ -68,3 +73,38 @@ class FactTransformer(BaseTransformer):
 
             fact["fact"] = " ".join(corrected_words)
         return data
+
+    def deduplication(self, data):
+        """
+        The `deduplication` function removes duplicate facts from the input data based
+        on their MD5 hash values. It takes a list of dictionaries as input. Each
+        dictionary in the list is expected to have a key "fact" containing a fact
+        string. The method then deduplicates the list based on the MD5 hash of the fact.
+
+        :param data: List of dictionaries as input.
+
+        :return: The function `deduplication` returns a list of unique facts after
+        removing any duplicates based on the hash value of the fact.
+        """
+        hash_set = set()
+        unique_facts = []
+        for fact in data:
+            # compute md5 hash for the fact
+            hash_ = hashlib.md5(fact["fact"].encode()).hexdigest()
+
+            # check if we saw the fact in this batch and skip if yes
+            if hash_ in hash_set:
+                continue
+
+            hash_set.add(hash_)
+
+            # check if the fact is present in the data repository
+            if self.data_repository.fact_exists(hash_):
+                continue
+
+            # store hash of the fact for persisting
+            fact["fact_hash"] = hash_
+
+            unique_facts.append(fact)
+
+        return unique_facts
