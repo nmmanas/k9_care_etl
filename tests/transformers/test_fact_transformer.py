@@ -27,7 +27,11 @@ class TestFactTransformer:
             {
                 "fact": " A great fact    about dogs!  ",
                 "created_date": "2023-10-02T02:22:00.272Z",
-            }
+            },
+            {
+                "fact": " This is  another fact with  new line! \n ",
+                "created_date": "2023-10-02T02:22:00.272Z",
+            },
         ]
 
         from ...etl.transformers import FactTransformer
@@ -35,3 +39,4 @@ class TestFactTransformer:
         clean_data = FactTransformer().clean_whitespaces(data)
 
         assert clean_data[0]["fact"] == "A great fact about dogs!"
+        assert clean_data[1]["fact"] == "This is another fact with new line!"

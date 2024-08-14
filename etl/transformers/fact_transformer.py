@@ -14,3 +14,8 @@ class FactTransformer(BaseTransformer):
         """
         transformed_data = data
         return transformed_data
+
+    def clean_whitespaces(self, data):
+        for fact in data:
+            fact["fact"] = " ".join(fact["fact"].split()).strip()
+        return data
