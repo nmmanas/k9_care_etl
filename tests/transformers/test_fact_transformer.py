@@ -1,8 +1,12 @@
-class TestTransform:
-    def test_extract_data(self):
+class TestFactTransformer:
+    """
+    This class contains the testing logic for `FactTransformer` class.
+    """
+
+    def test_basic_transform(self):
         """
-        The function `test_extract_data` extracts and transforms JSON data using a
-        helper function.
+        The `test_basic_transform` function tests the transformation of JSON data using
+        a `FactTransformer` class.
         """
         json_data = [
             {
