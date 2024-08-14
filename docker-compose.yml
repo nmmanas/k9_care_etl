@@ -14,7 +14,7 @@ services:
       timeout: 10s
       retries: 20
     volumes:
-      - ./db:/var/lib/postgresql/data
+      - db:/var/lib/postgresql/data
       - ./sql/init.sql:/docker-entrypoint-initdb.d/create_tables.sql
 
   etl:
@@ -30,4 +30,3 @@ services:
 
 volumes:
   db:
-    driver: local
