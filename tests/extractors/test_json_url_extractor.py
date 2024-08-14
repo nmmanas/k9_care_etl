@@ -4,11 +4,12 @@ import requests
 from ...etl.exceptions import MalformedJsonError
 
 
-class TestExtract:
+class TestJSONURLExtractor:
     """
-    The `TestExtract` class contains unit tests for the `get_resource` and
-    `extract_data` functions, mocking responses and testing various scenarios such as
-    status codes, network errors, and JSON data extraction.
+    The `TestJSONURLExtractor` class contains unit tests for testing the `get_resource`
+    and `extract_data` functions from etl.extractors.JSONURLExtractor, mocking responses
+    and testing various scenarios such as tatus codes, network errors, and JSON data
+    extraction.
     """
 
     def test_get_resource(self, mocker):
