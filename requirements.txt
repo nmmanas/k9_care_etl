@@ -4,3 +4,4 @@ pytest
 pytest-mock
 flake8
 python-dotenv
+pyspellchecker
