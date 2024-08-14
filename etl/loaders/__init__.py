@@ -1,3 +1,3 @@
-from .postgres_loader import PostgresLoader
+from .facts_loader import FactsLoader
 
-__all__ = ["PostgresLoader"]
+__all__ = ["FactsLoader"]
