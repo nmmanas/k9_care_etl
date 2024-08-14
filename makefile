@@ -2,7 +2,7 @@ install:
 	venv/bin/pip install -Ur ./requirements.txt
 
 unit-tests:
-	pytest
+	venv/bin/pytest tests/
 
 build-docker-compose:
 	sudo docker-compose build
