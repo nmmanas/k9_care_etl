@@ -1,4 +1,9 @@
-class TestLoad:
+class TestPostgresLoader:
+    """
+    The `TestPostgresLoader` class contains tests that test the loader class
+    PostgresLoader.
+    """
+
     def test_load_data(self, mocker):
         """
         The `test_load_data` function tests the loading of data into a database using
@@ -19,10 +24,10 @@ class TestLoad:
                 "created_date": "2024-07-11T22:49:15.819Z",
             },
         ]
-        from ..etl.load import load_data
+        from ...etl.loaders import PostgresLoader
 
         # Call the function with test data
-        load_data(test_data)
+        PostgresLoader("test_db_uri").load(test_data)
 
         # Assertions to check if the correct SQL query was executed with expected data
         insert_query = "INSERT INTO facts (fact, created_date) VALUES (%s, %s)"
