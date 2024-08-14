@@ -1,19 +1,23 @@
-# main_etl.py
-
-from etl.extract import extract_data
-from etl.load import load_data
-from etl.transform import transform_data
+from etl.config import Config
+from etl.extractors import JSONURLExtractor
+from etl.loaders.postgres_loader import PostgresLoader
+from etl.transformers.fact_transformer import FactTransformer
 
 
 def run_etl():
+    url = Config.resource_url
+    db_uri = Config.db_uri
     # Step 1: Extract the data
-    data = extract_data()
+    extractor = JSONURLExtractor(url)
+    raw_data = extractor.extract()
 
     # Step 2: Transform the data
-    transformed_data = transform_data(data)
+    transformer = FactTransformer()
+    transformed_data = transformer.transform(raw_data)
 
     # Step 3: Load the data into PostgreSQL
-    load_data(transformed_data)
+    loader = PostgresLoader(db_uri)
+    loader.load(transformed_data)
 
 
 if __name__ == "__main__":

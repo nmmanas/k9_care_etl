@@ -13,8 +13,6 @@ dotenv_path = os.path.join(
     APP_ROOT, ENVIRONMENTS.get(ENV) or os.path.join("..", ".env.dev")
 )
 
-print(f"{dotenv_path=}")
-
 # Load Environment variables
 load_dotenv(dotenv_path)
 
