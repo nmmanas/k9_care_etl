@@ -18,6 +18,19 @@ class FactTransformer(BaseTransformer):
         return transformed_data
 
     def clean_whitespaces(self, data):
+        """
+        This function removes extra whitespaces from the "fact" field in each dictionary
+        within the input data list.
+
+        :param data: The `clean_whitespaces` function takes a list of dictionaries as
+        input, where each dictionary has a key "fact" containing a string value. The
+        function then removes extra whitespaces from the "fact" values in each
+        dictionary by splitting the string into words, joining them back with a single
+        space
+
+        :return: The `clean_whitespaces` function returns the `data` after cleaning
+        whitespaces in the "fact" field of each item in the data list.
+        """
         for fact in data:
             fact["fact"] = " ".join(fact["fact"].split()).strip()
         return data
