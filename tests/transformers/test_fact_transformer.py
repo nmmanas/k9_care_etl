@@ -22,6 +22,10 @@ class TestFactTransformer:
         assert data == json_data
 
     def test_clean_whitespace_transformer(self):
+        """
+        This function tests the `clean_whitespaces` method of the `FactTransformer`
+        class by providing sample data with whitespace to be cleaned.
+        """
 
         data = [
             {
