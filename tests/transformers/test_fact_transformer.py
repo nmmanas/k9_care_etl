@@ -20,3 +20,18 @@ class TestFactTransformer:
         data = FactTransformer().transform(json_data)
 
         assert data == json_data
+
+    def test_clean_whitespace_transformer(self):
+
+        data = [
+            {
+                "fact": " A great fact    about dogs!  ",
+                "created_date": "2023-10-02T02:22:00.272Z",
+            }
+        ]
+
+        from ...etl.transformers import FactTransformer
+
+        clean_data = FactTransformer().clean_whitespaces(data)
+
+        assert clean_data[0]["fact"] == "A great fact about dogs!"
