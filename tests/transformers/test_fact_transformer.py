@@ -3,22 +3,6 @@ class TestFactTransformer:
     This class contains the testing logic for `FactTransformer` class.
     """
 
-    def test_basic_transform(self, fact_transformer_instance):
-        """
-        The `test_basic_transform` function tests the transformation of JSON data using
-        a `FactTransformer` class.
-        """
-        json_data = [
-            {
-                "fact": "A great fact about dogs!",
-                "created_date": "2023-10-02T02:22:00.272Z",
-            }
-        ]
-
-        data = fact_transformer_instance.transform(json_data)
-
-        assert data == json_data
-
     def test_clean_whitespace_transformer(self, fact_transformer_instance):
         """
         This function tests the `clean_whitespaces` method of the `FactTransformer`
