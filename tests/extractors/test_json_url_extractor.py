@@ -1,7 +1,7 @@
 import pytest
 import requests
 
-from ..etl.exceptions import MalformedJsonError
+from ...etl.exceptions import MalformedJsonError
 
 
 class TestExtract:
@@ -25,9 +25,9 @@ class TestExtract:
         mock_response.status_code = 200
         mocker.patch("requests.get", return_value=mock_response)
 
-        from ..etl.extract import get_resource
+        from ...etl.extractors import JSONURLExtractor
 
-        response = get_resource()
+        response = JSONURLExtractor("www.example.com").get_resource()
 
         assert response == mock_response
         assert response.status_code == 200
@@ -46,9 +46,10 @@ class TestExtract:
         mock_response = mocker.Mock()
         mock_response.status_code = 404
         mocker.patch("requests.get", return_value=mock_response)
-        from ..etl.extract import get_resource
 
-        response = get_resource()
+        from ...etl.extractors import JSONURLExtractor
+
+        response = JSONURLExtractor("www.example.com").get_resource()
 
         assert response.status_code == 404
 
@@ -67,12 +68,14 @@ class TestExtract:
             "requests.get",
             side_effect=requests.exceptions.ConnectionError("Network is down"),
         )
-        from ..etl.extract import get_resource
 
+        from ...etl.extractors import JSONURLExtractor
+
+        # Assert that the ConnectionError is raised
         with pytest.raises(
             requests.exceptions.ConnectionError, match="Network is down"
         ):
-            get_resource()
+            JSONURLExtractor("www.example.com").get_resource()
 
     def test_get_resource_missing_resource(self, mocker):
         """
@@ -87,9 +90,10 @@ class TestExtract:
         mock_response = mocker.Mock()
         mock_response.status_code = 404
         mocker.patch("requests.get", return_value=mock_response)
-        from ..etl.extract import get_resource
 
-        response = get_resource()
+        from ...etl.extractors import JSONURLExtractor
+
+        response = JSONURLExtractor("www.example.com").get_resource()
 
         assert response.status_code == 404
 
@@ -113,9 +117,9 @@ class TestExtract:
         mock_response.json.return_value = mock_json_data
         mocker.patch("requests.get", return_value=mock_response)
 
-        from ..etl.extract import extract_data
+        from ...etl.extractors import JSONURLExtractor
 
-        data = extract_data()
+        data = JSONURLExtractor("www.example.com").extract()
 
         assert data == mock_json_data
 
@@ -134,10 +138,12 @@ class TestExtract:
             "The JSON file is malformed"
         )
         mocker.patch("requests.get", return_value=mock_response)
-        from ..etl.extract import extract_data
 
+        from ...etl.extractors import JSONURLExtractor
+
+        # Assert that the MalformedJsonError is raised
         with pytest.raises(MalformedJsonError, match="The JSON file is malformed"):
-            extract_data()
+            JSONURLExtractor("www.example.com").extract()
 
     def test_extract_data_malformed_json(self, mocker):
         """
@@ -153,8 +159,9 @@ class TestExtract:
         mock_response = mocker.Mock()
         mock_response.json.side_effect = ValueError("Malformed JSON")
         mocker.patch("requests.get", return_value=mock_response)
-        from ..etl.extract import extract_data
+
+        from ...etl.extractors import JSONURLExtractor
 
         # Assert that the MalformedJsonError is raised
         with pytest.raises(MalformedJsonError, match="The JSON file is malformed"):
-            extract_data()
+            JSONURLExtractor("www.example.com").extract()
