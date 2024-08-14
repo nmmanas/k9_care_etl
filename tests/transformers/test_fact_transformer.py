@@ -11,8 +11,8 @@ class TestTransform:
             }
         ]
 
-        from ..etl.transform import transform_data
+        from ...etl.transformers import FactTransformer
 
-        data = transform_data(json_data)
+        data = FactTransformer().transform(json_data)
 
         assert data == json_data
