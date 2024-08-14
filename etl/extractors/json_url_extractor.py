@@ -3,7 +3,7 @@ import time
 
 import requests
 
-from ...etl.exceptions import MalformedJsonError
+from ..exceptions import MalformedJsonError
 from .base_extractor import BaseExtractor
 
 
