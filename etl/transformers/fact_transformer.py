@@ -40,6 +40,17 @@ class FactTransformer(BaseTransformer):
             fact["fact"] = " ".join(fact["fact"].split()).strip()
         return data
 
+    def drop_blanks(self, data):
+        """
+        This functions iterates through the input list and drops any blank facts
+        """
+        facts = []
+        for fact in data:
+            if fact["fact"] == "":
+                continue
+            facts.append(fact)
+        return facts
+
     def correct_typos(self, data):
         """
         The function corrects typos in a list of facts by using a SpellChecker to
