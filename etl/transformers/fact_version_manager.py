@@ -4,7 +4,9 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 
 
 class FactVersionManager:
-    def __init__(self, data_repository, num_perm=128, num_buckets=5, threshold=70):
+    def __init__(
+        self, data_repository, num_perm=128, num_buckets=5, threshold=70
+    ):
         self.data_repository = data_repository
         self.num_perm = num_perm
         self.num_buckets = num_buckets
@@ -13,7 +15,8 @@ class FactVersionManager:
 
     def create_lsh_buckets(self, text):
         """
-        Create LSH buckets from input text using MinHash and return their hashes.
+        Create LSH buckets from input text using MinHash and return their
+        hashes.
         """
         tfidf_vector = self.vectorizer.fit_transform([text])
         minhash = MinHash(num_perm=self.num_perm)
@@ -39,8 +42,9 @@ class FactVersionManager:
 
     def match_and_find_version(self, fact):
         """
-        Match the input fact with similar facts and return the ID of the best match.
-        Updates the fact with bucket hashes and fact number if a match is found.
+        Match the input fact with similar facts and return the ID of the best
+        match. Updates the fact with bucket hashes and fact number if a match
+        is found.
         """
 
         current_fact = fact["fact"]
@@ -52,7 +56,11 @@ class FactVersionManager:
             return None
 
         match_scores = [
-            (candidate[0], candidate[1], fuzz.ratio(current_fact, candidate[2]))
+            (
+                candidate[0],
+                candidate[1],
+                fuzz.ratio(current_fact, candidate[2]),
+            )
             for candidate in candidates
             if fuzz.ratio(current_fact, candidate[2]) > self.threshold
         ]

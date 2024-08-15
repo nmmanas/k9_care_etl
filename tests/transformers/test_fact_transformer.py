@@ -5,8 +5,9 @@ class TestFactTransformer:
 
     def test_clean_whitespace_transformer(self, fact_transformer_instance):
         """
-        This function tests the `clean_whitespaces` method of the `FactTransformer`
-        class by providing sample data with whitespace to be cleaned.
+        This function tests the `clean_whitespaces` method of the
+        `FactTransformer` class by providing sample data with whitespace to be
+        cleaned.
         """
 
         data = [

@@ -37,17 +37,17 @@ class FactTransformer(BaseTransformer):
 
     def clean_whitespaces(self, data):
         """
-        This function removes extra whitespaces from the "fact" field in each dictionary
-        within the input data list.
+        This function removes extra whitespaces from the "fact" field in each
+        dictionary within the input data list.
 
-        :param data: The `clean_whitespaces` function takes a list of dictionaries as
-        input, where each dictionary has a key "fact" containing a string value. The
-        function then removes extra whitespaces from the "fact" values in each
-        dictionary by splitting the string into words, joining them back with a single
-        space
+        :param data: The `clean_whitespaces` function takes a list of
+        dictionaries as input, where each dictionary has a key "fact"
+        containing a string value. The function then removes extra whitespaces
+        from the "fact" values in each dictionary by splitting the string into
+        words, joining them back with a single space
 
-        :return: The `clean_whitespaces` function returns the `data` after cleaning
-        whitespaces in the "fact" field of each item in the data list.
+        :return: The `clean_whitespaces` function returns the `data` after
+        cleaning whitespaces in the "fact" field of each item in the data list.
         """
         for fact in data:
             fact["fact"] = " ".join(fact["fact"].split()).strip()
@@ -55,7 +55,8 @@ class FactTransformer(BaseTransformer):
 
     def drop_blanks(self, data):
         """
-        This functions iterates through the input list and drops any blank facts
+        This functions iterates through the input list and drops any blank
+        facts
         """
         facts = []
         for fact in data:
@@ -66,8 +67,8 @@ class FactTransformer(BaseTransformer):
 
     def correct_typos(self, data):
         """
-        The function corrects typos in a list of facts by using a SpellChecker to
-        correct words and maintain capitalization.
+        The function corrects typos in a list of facts by using a SpellChecker
+        to correct words and maintain capitalization.
 
         :param data: facts dictionary in following format:
             [
@@ -76,10 +77,10 @@ class FactTransformer(BaseTransformer):
                     "created_date": "<date>"
                 }
             ]
-        :return: The `correct_typos` method returns the `data` after correcting any
-        typos in the "fact" field of each item in the data. The typos are corrected
-        using the `SpellChecker` class, and the corrected words are stored back in the
-        "fact" field before returning the updated `data`.
+        :return: The `correct_typos` method returns the `data` after correcting
+        any typos in the "fact" field of each item in the data. The typos are
+        corrected using the `SpellChecker` class, and the corrected words are
+        stored back in the "fact" field before returning the updated `data`.
         """
         spell = SpellChecker()
 
@@ -99,15 +100,16 @@ class FactTransformer(BaseTransformer):
 
     def deduplication(self, data):
         """
-        The `deduplication` function removes duplicate facts from the input data based
-        on their MD5 hash values. It takes a list of dictionaries as input. Each
-        dictionary in the list is expected to have a key "fact" containing a fact
-        string. The method then deduplicates the list based on the MD5 hash of the fact.
+        The `deduplication` function removes duplicate facts from the input
+        data based on their MD5 hash values. It takes a list of dictionaries as
+        input. Each dictionary in the list is expected to have a key "fact"
+        containing a fact string. The method then deduplicates the list based
+        on the MD5 hash of the fact.
 
         :param data: List of dictionaries as input.
 
-        :return: The function `deduplication` returns a list of unique facts after
-        removing any duplicates based on the hash value of the fact.
+        :return: The function `deduplication` returns a list of unique facts
+        after removing any duplicates based on the hash value of the fact.
         """
         hash_set = set()
         unique_facts = []
@@ -138,8 +140,10 @@ class FactTransformer(BaseTransformer):
         1. Create LSH buckets for the current fact.
         2. Find similar facts by buckets from the database.
         3. Fuzzy compare against similar facts.
-        4. If the matching score exceeds the threshold, identify as a new version.
-        5. Save the new version to the database and mark the old version as expired.
+        4. If the matching score exceeds the threshold, identify as a new
+           version.
+        5. Save the new version to the database and mark the old version as
+           expired.
         6. Save LSH buckets in the database.
         """
         expired = []

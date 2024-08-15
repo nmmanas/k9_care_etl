@@ -4,8 +4,8 @@ import pytest
 class TestFactVersionManager:
     def test_create_lsh_buckets_empty_input(self, fact_version_manager):
         """
-        Test that create_lsh_buckets raises a ValueError when given an empty input
-        string.
+        Test that create_lsh_buckets raises a ValueError when given an empty
+        input string.
         """
         with pytest.raises(
             ValueError
@@ -14,8 +14,9 @@ class TestFactVersionManager:
 
     def test_create_lsh_buckets_single_word(self, fact_version_manager):
         """
-        Test that create_lsh_buckets returns the correct number of bucket hashes for a
-        single word input. Ensures all returned bucket hashes are integers.
+        Test that create_lsh_buckets returns the correct number of bucket
+        hashes for a single word input. Ensures all returned bucket hashes are
+        integers.
         """
         bucket_hashes = fact_version_manager.create_lsh_buckets("word")
         assert len(bucket_hashes) == fact_version_manager.num_buckets
@@ -23,10 +24,13 @@ class TestFactVersionManager:
 
     def test_create_lsh_buckets_multiple_words(self, fact_version_manager):
         """
-        Test that create_lsh_buckets returns the correct number of bucket hashes for a
-        multiple words input. Ensures all returned bucket hashes are integers.
+        Test that create_lsh_buckets returns the correct number of bucket
+        hashes for a multiple words input. Ensures all returned bucket hashes
+        are integers.
         """
-        bucket_hashes = fact_version_manager.create_lsh_buckets("multiple words input")
+        bucket_hashes = fact_version_manager.create_lsh_buckets(
+            "multiple words input"
+        )
         assert len(bucket_hashes) == fact_version_manager.num_buckets
         assert all(isinstance(bh, int) for bh in bucket_hashes)
 
@@ -34,8 +38,8 @@ class TestFactVersionManager:
         self, fact_version_manager, data_repository_mock
     ):
         """
-        Test that get_similar_fact_ids returns an empty list when no similar facts are
-        found.
+        Test that get_similar_fact_ids returns an empty list when no similar
+        facts are found.
         """
         data_repository_mock.find_similar_facts_by_buckets.return_value = []
         similar_fact_ids = fact_version_manager.get_similar_fact_ids([12345])
@@ -46,8 +50,8 @@ class TestFactVersionManager:
         self, fact_version_manager, data_repository_mock
     ):
         """
-        Test that match_and_find_version returns None and does not set fact_number
-        when no similar facts are found.
+        Test that match_and_find_version returns None and does not set
+        fact_number when no similar facts are found.
         """
         fact = {"fact": "This is a test fact"}
         data_repository_mock.find_similar_facts_by_buckets.return_value = []
@@ -63,8 +67,8 @@ class TestFactVersionManager:
         self, fact_version_manager, data_repository_mock
     ):
         """
-        Test that match_and_find_version returns the ID of an identical fact and sets
-        the fact_number.
+        Test that match_and_find_version returns the ID of an identical fact
+        and sets the fact_number.
         """
         fact = {"fact": "This is a test fact"}
         mock_candidates = {
@@ -84,8 +88,8 @@ class TestFactVersionManager:
         self, fact_version_manager, data_repository_mock
     ):
         """
-        Test that match_and_find_version returns the ID of the most similar fact
-        if its similarity score is above the threshold.
+        Test that match_and_find_version returns the ID of the most similar
+        fact if its similarity score is above the threshold.
         """
         fact = {"fact": "This is a test fact"}
         mock_candidates = {
@@ -99,7 +103,8 @@ class TestFactVersionManager:
 
         result = fact_version_manager.match_and_find_version(fact)
 
-        # It should return the ID of the most similar fact, if it's above the threshold
+        # It should return the ID of the most similar fact,
+        # if it's above the threshold
         assert result is not None
         assert fact["fact_number"] in {101, 102}
 

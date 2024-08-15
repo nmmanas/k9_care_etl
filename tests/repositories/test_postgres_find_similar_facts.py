@@ -3,7 +3,9 @@ from psycopg2 import OperationalError
 
 
 class TestFindSimilarFacts:
-    def test_find_similar_facts_no_buckets(self, db_connect_mock, postgres_repository):
+    def test_find_similar_facts_no_buckets(
+        self, db_connect_mock, postgres_repository
+    ):
         """
         Test case where no bucket hashes are provided
         """
@@ -12,7 +14,9 @@ class TestFindSimilarFacts:
 
         result = postgres_repository.find_similar_facts_by_buckets([])
 
-        assert result == []  # Should return an empty list when no buckets are provided
+        assert (
+            result == []
+        )  # Should return an empty list when no buckets are provided
 
     def test_find_similar_facts_single_bucket(
         self, db_connect_mock, postgres_repository
@@ -41,9 +45,15 @@ class TestFindSimilarFacts:
             [(2, 102, "Fact 2"), (3, 103, "Fact 3")],
         ]
 
-        result = postgres_repository.find_similar_facts_by_buckets(["hash1", "hash2"])
+        result = postgres_repository.find_similar_facts_by_buckets(
+            ["hash1", "hash2"]
+        )
 
-        expected_result = [(1, 101, "Fact 1"), (2, 102, "Fact 2"), (3, 103, "Fact 3")]
+        expected_result = [
+            (1, 101, "Fact 1"),
+            (2, 102, "Fact 2"),
+            (3, 103, "Fact 3"),
+        ]
         assert sorted(result) == sorted(
             expected_result
         )  # Should return facts associated with both bucket hashes
@@ -60,12 +70,18 @@ class TestFindSimilarFacts:
             [(1, 101, "Fact 1"), (2, 102, "Fact 2")],
         ]
 
-        result = postgres_repository.find_similar_facts_by_buckets(["hash1", "hash2"])
+        result = postgres_repository.find_similar_facts_by_buckets(
+            ["hash1", "hash2"]
+        )
 
         expected_result = [(1, 101, "Fact 1"), (2, 102, "Fact 2")]
-        assert sorted(result) == sorted(expected_result)  # Should deduplicate the facts
+        assert sorted(result) == sorted(
+            expected_result
+        )  # Should deduplicate the facts
 
-    def test_find_similar_facts_db_error(self, db_connect_mock, postgres_repository):
+    def test_find_similar_facts_db_error(
+        self, db_connect_mock, postgres_repository
+    ):
         """
         Test case where the database connection fails
         """

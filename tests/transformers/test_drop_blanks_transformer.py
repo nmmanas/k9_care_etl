@@ -22,7 +22,11 @@ class TestDropBlanksTransformer:
             {"fact": "Fact 3"},
         ]
 
-        expected_result = [{"fact": "Fact 1"}, {"fact": "Fact 2"}, {"fact": "Fact 3"}]
+        expected_result = [
+            {"fact": "Fact 1"},
+            {"fact": "Fact 2"},
+            {"fact": "Fact 3"},
+        ]
 
         result = fact_transformer_instance.drop_blanks(data)
 
@@ -48,9 +52,9 @@ class TestDropBlanksTransformer:
 
         result = fact_transformer_instance.drop_blanks(data)
 
-        assert (
-            result == []
-        )  # The input is an empty list, so the result should also be an empty list
+        # The input is an empty list, so the result should also be an empty
+        # list
+        assert result == []
 
     def test_drop_blanks_mixed_content(self, fact_transformer_instance):
         """
