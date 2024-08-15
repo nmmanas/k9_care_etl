@@ -34,8 +34,9 @@ class FactTransformer(BaseTransformer):
         return no_duplicates
 
     def process_data(self, data):
-        expired, versioned_data = self.identify_versions(data)
-        return versioned_data, expired
+        versioned_data, expired = self.identify_versions(data)
+        categorized_data = self.categorize_numeric_facts(versioned_data)
+        return categorized_data, expired
 
     def clean_whitespaces(self, data):
         """
@@ -153,4 +154,30 @@ class FactTransformer(BaseTransformer):
             expired_fact_id = self.version_manager.match_and_find_version(fact)
             if expired_fact_id:
                 expired.append(expired_fact_id)
-        return expired, data
+        return data, expired
+
+    def contains_number(self, text):
+        # Check for digits
+        if re.search(r"\d", text):
+            return True
+
+        # Check for hyphenated number words
+        if re.search(hyphenated_numbers_pattern, text, re.IGNORECASE):
+            return True
+
+        # Check for exact number words
+        words = set(re.findall(r"\b\w+\b", text.lower()))
+        if words & number_words:
+            return True
+
+        return False
+
+    def categorize_numeric_facts(self, data):
+        for fact in data:
+            if "fact" in fact:
+                if self.contains_number(fact["fact"]):
+                    fact["is_numeric"] = True
+                else:
+                    fact["is_numeric"] = False
+
+        return data
