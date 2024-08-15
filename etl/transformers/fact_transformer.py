@@ -19,8 +19,19 @@ class FactTransformer(BaseTransformer):
         :return: the `transformed_data`, which is a variable holding the same value as
         the input `data`.
         """
-        transformed_data = data
-        return transformed_data
+        cleaned_data = self.cleanup_data(data)
+        return cleaned_data
+
+    def cleanup_data(self, data):
+        print(f"{data=}")
+        no_whitespaces = self.clean_whitespaces(data)
+        print(f"{no_whitespaces=}")
+        no_blanks = self.drop_blanks(no_whitespaces)
+        print(f"{no_blanks=}")
+        no_duplicates = self.deduplication(no_blanks)
+        print(f"{no_duplicates=}")
+
+        return no_duplicates
 
     def clean_whitespaces(self, data):
         """
@@ -81,7 +92,6 @@ class FactTransformer(BaseTransformer):
                 else:
                     corrected_word = spell.correction(word)
                 corrected_words.append(corrected_word)
-
             fact["fact"] = " ".join(corrected_words)
         return data
 
@@ -111,6 +121,7 @@ class FactTransformer(BaseTransformer):
 
             # check if the fact is present in the data repository
             if self.data_repository.fact_exists(hash_):
+                print(f'{fact["fact"]} exists in data repo')
                 continue
 
             # store hash of the fact for persisting
