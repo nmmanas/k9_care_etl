@@ -1,8 +1,10 @@
 import hashlib
+import re
 
 from spellchecker import SpellChecker
 
 from .base_transformer import BaseTransformer
+from .constants import hyphenated_numbers_pattern, number_words
 from .fact_version_manager import FactVersionManager
 
 
