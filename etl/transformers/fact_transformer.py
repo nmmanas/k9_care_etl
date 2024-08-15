@@ -145,5 +145,6 @@ class FactTransformer(BaseTransformer):
         expired = []
         for fact in data:
             expired_fact_id = self.version_manager.match_and_find_version(fact)
-            expired.append(expired_fact_id)
+            if expired_fact_id:
+                expired.append(expired_fact_id)
         return expired, data
