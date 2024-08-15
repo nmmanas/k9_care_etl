@@ -21,7 +21,8 @@ class FactTransformer(BaseTransformer):
 
     def cleanup_data(self, data):
         """
-        Clean the data by removing whitespaces, dropping blank entries, and deduplicating.
+        Clean the data by removing whitespaces, dropping blank entries, and
+        deduplicating.
         Returns the cleaned data.
         """
         no_whitespaces = self.clean_whitespaces(data)
