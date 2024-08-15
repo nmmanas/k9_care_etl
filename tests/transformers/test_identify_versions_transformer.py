@@ -26,7 +26,7 @@ class TestIdentifyVersionsTransformer:
 
         result_expired, result_data = fact_transformer_instance.identify_versions(data)
 
-        assert result_expired == [None, None]
+        assert result_expired == []
         assert result_data == data
 
     def test_identify_versions_with_matches(
@@ -42,7 +42,7 @@ class TestIdentifyVersionsTransformer:
 
         result_expired, result_data = fact_transformer_instance.identify_versions(data)
 
-        assert result_expired == [123, None, 456]
+        assert result_expired == [123, 456]
         assert result_data == data
 
     def test_identify_versions_mixed_results(
@@ -64,7 +64,7 @@ class TestIdentifyVersionsTransformer:
 
         result_expired, result_data = fact_transformer_instance.identify_versions(data)
 
-        assert result_expired == [None, 101, None, 202]
+        assert result_expired == [101, 202]
         assert result_data == data
 
     def test_identify_versions_all_match(

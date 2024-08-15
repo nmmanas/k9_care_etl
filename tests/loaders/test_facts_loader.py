@@ -23,5 +23,5 @@ class TestFactsLoader:
         from ...etl.loaders import FactsLoader
 
         # Call the function with test data
-        FactsLoader(data_repository).load(test_data)
+        FactsLoader(data_repository).load(test_data, [])
         data_repository.save_facts_batch.assert_called_once()

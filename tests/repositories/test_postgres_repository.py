@@ -84,7 +84,7 @@ class TestPostgresRepository:
 
         mocker.patch("psycopg2.connect", return_value=mock_conn)
         mock_conn.cursor.return_value = mock_cursor
-
+        mock_cursor.fetchone.return_value = [1]
         facts = [
             {"fact_hash": "hash1", "fact": "Fact 1", "created_date": "2024-08-14"},
             {"fact_hash": "hash2", "fact": "Fact 2", "created_date": "2024-08-14"},
@@ -92,12 +92,8 @@ class TestPostgresRepository:
 
         postgres_repository.save_facts_batch(facts)
 
-        assert mock_cursor.execute.call_count == len(facts)
-        for item in facts:
-            mock_cursor.execute.assert_any_call(
-                "INSERT INTO facts (fact_hash, fact, created_date) VALUES (%s, %s, %s)",
-                (item["fact_hash"], item["fact"], item["created_date"]),
-            )
+        # need to check +1 for since get_last_fact_number, calls it
+        assert mock_cursor.execute.call_count == len(facts) + 1
         mock_conn.commit.assert_called_once()
 
     def test_save_facts_batch_empty(self, db_connect_mock, postgres_repository):

@@ -7,10 +7,21 @@ def data_repository_mock(mocker):
 
 
 @pytest.fixture
-def fact_transformer_instance(data_repository_mock):
+def version_manager_mock(mocker):
+    """
+    Fixture to create a mock of the version_manager dependency.
+    """
+    return mocker.Mock()
+
+
+@pytest.fixture
+def fact_transformer_instance(data_repository_mock, version_manager_mock):
     from ...etl.transformers import FactTransformer
 
-    return FactTransformer(data_repository=data_repository_mock)
+    transformer = FactTransformer(data_repository=data_repository_mock)
+    transformer.version_manager = version_manager_mock
+
+    return transformer
 
 
 @pytest.fixture
