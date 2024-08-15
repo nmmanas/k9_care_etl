@@ -11,18 +11,16 @@ class FactTransformer(BaseTransformer):
 
     def transform(self, data):
         """
-        The `transform_data` function in Python simply returns the input data without
-        any transformation.
-
-        :param data: The `transform_data` function you provided simply returns the input
-        data as it is without any transformation.
-        :return: the `transformed_data`, which is a variable holding the same value as
-        the input `data`.
+        Clean and process the input data, returning the transformed result.
         """
         cleaned_data = self.cleanup_data(data)
         return cleaned_data
 
     def cleanup_data(self, data):
+        """
+        Clean the data by removing whitespaces, dropping blank entries, and deduplicating.
+        Returns the cleaned data.
+        """
         no_whitespaces = self.clean_whitespaces(data)
         no_blanks = self.drop_blanks(no_whitespaces)
         no_duplicates = self.deduplication(no_blanks)
