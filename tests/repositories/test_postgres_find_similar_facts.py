@@ -4,7 +4,9 @@ from psycopg2 import OperationalError
 
 class TestFindSimilarFacts:
     def test_find_similar_facts_no_buckets(self, db_connect_mock, postgres_repository):
-        # Test case where no bucket hashes are provided
+        """
+        Test case where no bucket hashes are provided
+        """
         mock_cursor = db_connect_mock.return_value.cursor.return_value
         mock_cursor.fetchall.return_value = []
 
@@ -15,7 +17,9 @@ class TestFindSimilarFacts:
     def test_find_similar_facts_single_bucket(
         self, db_connect_mock, postgres_repository
     ):
-        # Test case with a single bucket hash
+        """
+        Test case with a single bucket hash
+        """
         mock_cursor = db_connect_mock.return_value.cursor.return_value
         mock_cursor.fetchall.return_value = [(1, 101, "Fact 1")]
 
@@ -28,7 +32,9 @@ class TestFindSimilarFacts:
     def test_find_similar_facts_multiple_buckets(
         self, db_connect_mock, postgres_repository
     ):
-        # Test case with multiple bucket hashes
+        """
+        Test case with multiple bucket hashes
+        """
         mock_cursor = db_connect_mock.return_value.cursor.return_value
         mock_cursor.fetchall.side_effect = [
             [(1, 101, "Fact 1")],
@@ -45,7 +51,9 @@ class TestFindSimilarFacts:
     def test_find_similar_facts_duplicate_entries(
         self, db_connect_mock, postgres_repository
     ):
-        # Test case with duplicate entries across bucket hashes
+        """
+        Test case with duplicate entries across bucket hashes
+        """
         mock_cursor = db_connect_mock.return_value.cursor.return_value
         mock_cursor.fetchall.side_effect = [
             [(1, 101, "Fact 1")],
@@ -58,7 +66,9 @@ class TestFindSimilarFacts:
         assert sorted(result) == sorted(expected_result)  # Should deduplicate the facts
 
     def test_find_similar_facts_db_error(self, db_connect_mock, postgres_repository):
-        # Test case where the database connection fails
+        """
+        Test case where the database connection fails
+        """
         db_connect_mock.side_effect = OperationalError
 
         with pytest.raises(OperationalError):
