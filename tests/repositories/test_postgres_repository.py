@@ -92,11 +92,13 @@ class TestPostgresRepository:
                 "fact_hash": "hash1",
                 "fact": "Fact 1",
                 "created_date": "2024-08-14",
+                "is_numeric": True,
             },
             {
                 "fact_hash": "hash2",
                 "fact": "Fact 2",
                 "created_date": "2024-08-14",
+                "is_numeric": True,
             },
         ]
 

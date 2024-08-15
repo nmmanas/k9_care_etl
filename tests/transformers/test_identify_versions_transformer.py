@@ -27,7 +27,7 @@ class TestIdentifyVersionsTransformer:
 
         data = [{"fact": "Fact 1"}, {"fact": "Fact 2"}]
 
-        result_expired, result_data = (
+        result_data, result_expired = (
             fact_transformer_instance.identify_versions(data)
         )
 
@@ -49,7 +49,7 @@ class TestIdentifyVersionsTransformer:
 
         data = [{"fact": "Fact 1"}, {"fact": "Fact 2"}, {"fact": "Fact 3"}]
 
-        result_expired, result_data = (
+        result_data, result_expired = (
             fact_transformer_instance.identify_versions(data)
         )
 
@@ -78,7 +78,7 @@ class TestIdentifyVersionsTransformer:
             {"fact": "Fact D"},
         ]
 
-        result_expired, result_data = (
+        result_data, result_expired = (
             fact_transformer_instance.identify_versions(data)
         )
 
@@ -100,7 +100,7 @@ class TestIdentifyVersionsTransformer:
 
         data = [{"fact": "Fact X"}, {"fact": "Fact Y"}, {"fact": "Fact Z"}]
 
-        result_expired, result_data = (
+        result_data, result_expired = (
             fact_transformer_instance.identify_versions(data)
         )
 
