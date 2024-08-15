@@ -5,3 +5,6 @@ pytest-mock
 flake8
 python-dotenv
 pyspellchecker
+datasketch
+scikit-learn
+rapidfuzz
