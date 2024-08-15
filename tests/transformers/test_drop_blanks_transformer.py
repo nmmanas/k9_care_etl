@@ -1,6 +1,9 @@
 class TestDropBlanksTransformer:
 
     def test_drop_blanks_no_blanks(self, fact_transformer_instance):
+        """
+        Test drop_blanks function without any blanks
+        """
         data = [{"fact": "Fact 1"}, {"fact": "Fact 2"}, {"fact": "Fact 3"}]
 
         result = fact_transformer_instance.drop_blanks(data)
@@ -8,6 +11,9 @@ class TestDropBlanksTransformer:
         assert result == data  # No facts should be dropped
 
     def test_drop_blanks_with_blanks(self, fact_transformer_instance):
+        """
+        Test drop_blanks function with some blanks
+        """
         data = [
             {"fact": "Fact 1"},
             {"fact": ""},
@@ -23,6 +29,9 @@ class TestDropBlanksTransformer:
         assert result == expected_result  # Only non-blank facts should remain
 
     def test_drop_blanks_all_blanks(self, fact_transformer_instance):
+        """
+        Test drop_blanks function with all blanks
+        """
         data = [{"fact": ""}, {"fact": ""}, {"fact": ""}]
 
         result = fact_transformer_instance.drop_blanks(data)
@@ -32,6 +41,9 @@ class TestDropBlanksTransformer:
         )  # All facts are blank, so the result should be an empty list
 
     def test_drop_blanks_empty_list(self, fact_transformer_instance):
+        """
+        Test drop_blanks function with empty list
+        """
         data = []
 
         result = fact_transformer_instance.drop_blanks(data)
@@ -41,6 +53,9 @@ class TestDropBlanksTransformer:
         )  # The input is an empty list, so the result should also be an empty list
 
     def test_drop_blanks_mixed_content(self, fact_transformer_instance):
+        """
+        Test drop_blanks function with a mix of blanks and no blanks
+        """
         data = [
             {"fact": ""},
             {"fact": "Fact 1"},
