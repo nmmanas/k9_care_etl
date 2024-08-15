@@ -13,7 +13,7 @@ CREATE INDEX idx__facts__is_current ON facts (is_current);
 
 CREATE TABLE IF NOT EXISTS lsh_buckets (
     fact_id     INTEGER,
-    bucket_hash INTEGER,
+    bucket_hash BIGINT,
     FOREIGN KEY(fact_id) REFERENCES facts(id)
 );
 
