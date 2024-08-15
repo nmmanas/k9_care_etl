@@ -50,7 +50,8 @@ class TestIdentifyVersionsTransformer:
     ):
         """
         Test identify_versions with a mix of matching and non-matching facts.
-        The result should correctly reflect expired fact IDs and None for unmatched ones.
+        The result should correctly reflect expired fact IDs and None for unmatched
+        ones.
         """
         version_manager_mock.match_and_find_version.side_effect = [None, 101, None, 202]
 
