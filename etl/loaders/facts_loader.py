@@ -5,7 +5,7 @@ class FactsLoader(BaseLoader):
     def __init__(self, data_repository):
         self.data_repository = data_repository
 
-    def load(self, data):
+    def load(self, data, expired_data):
         """
         The `load` function inserts data into a PostgreSQL database table named `facts`
         using psycopg2.
@@ -14,4 +14,5 @@ class FactsLoader(BaseLoader):
         of dictionaries where each dictionary represents a row to be inserted into the
         `facts` table
         """
+        self.data_repository.mark_as_expired(expired_data)
         self.data_repository.save_facts_batch(data)
