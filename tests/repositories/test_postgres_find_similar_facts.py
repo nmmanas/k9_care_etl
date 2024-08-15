@@ -9,7 +9,7 @@ class TestFindSimilarFacts:
         """
         Test case where no bucket hashes are provided
         """
-        mock_cursor = db_connect_mock.return_value.cursor.return_value
+        mock_cursor = db_connect_mock["mock_cursor"]
         mock_cursor.fetchall.return_value = []
 
         result = postgres_repository.find_similar_facts_by_buckets([])
@@ -24,7 +24,7 @@ class TestFindSimilarFacts:
         """
         Test case with a single bucket hash
         """
-        mock_cursor = db_connect_mock.return_value.cursor.return_value
+        mock_cursor = db_connect_mock["mock_cursor"]
         mock_cursor.fetchall.return_value = [(1, 101, "Fact 1")]
 
         result = postgres_repository.find_similar_facts_by_buckets(["hash1"])
@@ -39,7 +39,7 @@ class TestFindSimilarFacts:
         """
         Test case with multiple bucket hashes
         """
-        mock_cursor = db_connect_mock.return_value.cursor.return_value
+        mock_cursor = db_connect_mock["mock_cursor"]
         mock_cursor.fetchall.side_effect = [
             [(1, 101, "Fact 1")],
             [(2, 102, "Fact 2"), (3, 103, "Fact 3")],
@@ -64,7 +64,7 @@ class TestFindSimilarFacts:
         """
         Test case with duplicate entries across bucket hashes
         """
-        mock_cursor = db_connect_mock.return_value.cursor.return_value
+        mock_cursor = db_connect_mock["mock_cursor"]
         mock_cursor.fetchall.side_effect = [
             [(1, 101, "Fact 1")],
             [(1, 101, "Fact 1"), (2, 102, "Fact 2")],
@@ -85,9 +85,21 @@ class TestFindSimilarFacts:
         """
         Test case where the database connection fails
         """
-        db_connect_mock.side_effect = OperationalError
+        # Mock the getconn() method to raise an OperationalError
+        db_connect_mock[
+            "connection_pool_mock"
+        ].return_value.getconn.side_effect = OperationalError
 
         with pytest.raises(OperationalError):
             postgres_repository.find_similar_facts_by_buckets(["hash1"])
 
-        db_connect_mock.assert_called_once_with(postgres_repository.db_uri)
+        # Ensure getconn was called
+        db_connect_mock[
+            "connection_pool_mock"
+        ].return_value.getconn.assert_called_once()
+
+        # Ensure putconn was not called since connection was never successfully
+        # retrieved
+        db_connect_mock[
+            "connection_pool_mock"
+        ].return_value.putconn.assert_not_called()
