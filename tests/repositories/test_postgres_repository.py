@@ -3,7 +3,7 @@ from psycopg2 import OperationalError
 
 
 class TestPostgresRepository:
-    def test_fact_exists_true(self, mocker, postgres_repository):
+    def test_fact_exists_true(self, db_connect_mock, postgres_repository):
         """
         The function `test_fact_exists_true` tests the existence of a fact in a
         PostgreSQL database using mocking in Python.
@@ -14,11 +14,7 @@ class TestPostgresRepository:
         mock instance of PostgresRepository class.
         """
 
-        mock_conn = mocker.Mock()
-        mock_cursor = mocker.Mock()
-
-        mocker.patch("psycopg2.connect", return_value=mock_conn)
-        mock_conn.cursor.return_value = mock_cursor
+        mock_cursor = db_connect_mock["mock_cursor"]
 
         mock_cursor.fetchone.return_value = (True,)
 
@@ -42,13 +38,12 @@ class TestPostgresRepository:
         :param postgres_repository: The `postgres_repository` parameter is a
         mock instance of PostgresRepository class.
         """
-        mock_cursor = db_connect_mock.return_value.cursor.return_value
+        mock_cursor = db_connect_mock["mock_cursor"]
         mock_cursor.fetchone.return_value = (False,)
 
         fact_hash = "somehashvalue"
         result = postgres_repository.fact_exists(fact_hash)
 
-        db_connect_mock.assert_called_once_with(postgres_repository.db_uri)
         mock_cursor.execute.assert_called_once_with(
             "SELECT EXISTS(SELECT 1 FROM facts WHERE fact_hash = %s)",
             (fact_hash,),
@@ -65,14 +60,21 @@ class TestPostgresRepository:
         :param postgres_repository: The `postgres_repository` parameter is a
         mock instance of PostgresRepository class.
         """
-        db_connect_mock.side_effect = OperationalError
+        db_connect_mock[
+            "connection_pool_mock"
+        ].return_value.getconn.side_effect = OperationalError
 
         with pytest.raises(OperationalError):
             postgres_repository.fact_exists("somehashvalue")
 
-        db_connect_mock.assert_called_once_with(postgres_repository.db_uri)
+        db_connect_mock[
+            "connection_pool_mock"
+        ].return_value.getconn.assert_called_once()
+        db_connect_mock[
+            "connection_pool_mock"
+        ].return_value.putconn.assert_not_called()
 
-    def test_save_facts_batch(self, mocker, postgres_repository):
+    def test_save_facts_batch(self, db_connect_mock, postgres_repository):
         """
         The `test_save_facts_batch` function tests the batch saving of facts to
         a PostgreSQL  repository using mocked objects.
@@ -82,11 +84,8 @@ class TestPostgresRepository:
         :param postgres_repository: The `postgres_repository` parameter is a
         mock instance of PostgresRepository class.
         """
-        mock_conn = mocker.Mock()
-        mock_cursor = mocker.Mock()
+        mock_cursor = db_connect_mock["mock_cursor"]
 
-        mocker.patch("psycopg2.connect", return_value=mock_conn)
-        mock_conn.cursor.return_value = mock_cursor
         mock_cursor.fetchone.return_value = [1]
         facts = [
             {
@@ -105,7 +104,7 @@ class TestPostgresRepository:
 
         # need to check +1 for since get_last_fact_number, calls it
         assert mock_cursor.execute.call_count == len(facts) + 1
-        mock_conn.commit.assert_called_once()
+        db_connect_mock["mock_conn"].commit.assert_called_once()
 
     def test_save_facts_batch_empty(
         self, db_connect_mock, postgres_repository
@@ -123,7 +122,7 @@ class TestPostgresRepository:
 
         postgres_repository.save_facts_batch(facts)
 
-        db_connect_mock.return_value.commit.assert_not_called()
+        db_connect_mock["mock_conn"].commit.assert_not_called()
 
     def test_save_facts_batch_db_error(
         self, db_connect_mock, postgres_repository
@@ -137,7 +136,9 @@ class TestPostgresRepository:
         :param postgres_repository: The `postgres_repository` parameter is a
         mock instance of PostgresRepository class.
         """
-        db_connect_mock.side_effect = OperationalError
+        db_connect_mock[
+            "connection_pool_mock"
+        ].return_value.getconn.side_effect = OperationalError
 
         facts = [
             {
@@ -150,4 +151,41 @@ class TestPostgresRepository:
         with pytest.raises(OperationalError):
             postgres_repository.save_facts_batch(facts)
 
-        db_connect_mock.assert_called_once_with(postgres_repository.db_uri)
+        db_connect_mock[
+            "connection_pool_mock"
+        ].return_value.getconn.assert_called_once()
+        db_connect_mock[
+            "connection_pool_mock"
+        ].return_value.putconn.assert_not_called()
+
+    def test_get_connection_uninitialized_pool(self, postgres_repository):
+        """
+        Test if exception is raised when connection pool is not initialized.
+        """
+
+        from ...etl.repositories import PostgresRepository
+
+        # Force uninitialize the pool
+        PostgresRepository._connection_pool = None
+        with pytest.raises(
+            Exception, match="Connection pool is not initialized"
+        ):
+            postgres_repository._get_connection()
+
+    def test_fact_exists_exception_handling(
+        self, db_connect_mock, postgres_repository
+    ):
+        """Test that an exception is handled in fact_exists method."""
+        db_connect_mock["mock_cursor"].execute.side_effect = OperationalError(
+            "DB Error"
+        )
+        with pytest.raises(OperationalError):
+            postgres_repository.fact_exists("some_hash")
+
+    def test_get_last_fact_number_empty_table(
+        self, db_connect_mock, postgres_repository
+    ):
+        """Test get_last_fact_number when the facts table is empty."""
+        db_connect_mock["mock_cursor"].fetchone.return_value = [None]
+        last_number = postgres_repository.get_last_fact_number()
+        assert last_number is None
