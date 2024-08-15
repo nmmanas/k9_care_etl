@@ -3,18 +3,21 @@ import hashlib
 from spellchecker import SpellChecker
 
 from .base_transformer import BaseTransformer
+from .fact_version_manager import FactVersionManager
 
 
 class FactTransformer(BaseTransformer):
     def __init__(self, data_repository):
         self.data_repository = data_repository
+        self.version_manager = FactVersionManager(data_repository)
 
     def transform(self, data):
         """
         Clean and process the input data, returning the transformed result.
         """
         cleaned_data = self.cleanup_data(data)
-        return cleaned_data
+        processed_data, expired = self.process_data(cleaned_data)
+        return processed_data, expired
 
     def cleanup_data(self, data):
         """
@@ -26,6 +29,10 @@ class FactTransformer(BaseTransformer):
         no_duplicates = self.deduplication(no_blanks)
 
         return no_duplicates
+
+    def process_data(self, data):
+        expired, versioned_data = self.identify_versions(data)
+        return versioned_data, expired
 
     def clean_whitespaces(self, data):
         """
@@ -123,3 +130,19 @@ class FactTransformer(BaseTransformer):
             unique_facts.append(fact)
 
         return unique_facts
+
+    def identify_versions(self, data):
+        """
+        Identify and manage versions of facts:
+        1. Create LSH buckets for the current fact.
+        2. Find similar facts by buckets from the database.
+        3. Fuzzy compare against similar facts.
+        4. If the matching score exceeds the threshold, identify as a new version.
+        5. Save the new version to the database and mark the old version as expired.
+        6. Save LSH buckets in the database.
+        """
+        expired = []
+        for fact in data:
+            expired_fact_id = self.version_manager.match_and_find_version(fact)
+            expired.append(expired_fact_id)
+        return expired, data
