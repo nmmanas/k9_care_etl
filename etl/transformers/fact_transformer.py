@@ -23,13 +23,9 @@ class FactTransformer(BaseTransformer):
         return cleaned_data
 
     def cleanup_data(self, data):
-        print(f"{data=}")
         no_whitespaces = self.clean_whitespaces(data)
-        print(f"{no_whitespaces=}")
         no_blanks = self.drop_blanks(no_whitespaces)
-        print(f"{no_blanks=}")
         no_duplicates = self.deduplication(no_blanks)
-        print(f"{no_duplicates=}")
 
         return no_duplicates
 
@@ -121,7 +117,6 @@ class FactTransformer(BaseTransformer):
 
             # check if the fact is present in the data repository
             if self.data_repository.fact_exists(hash_):
-                print(f'{fact["fact"]} exists in data repo')
                 continue
 
             # store hash of the fact for persisting
