@@ -75,8 +75,8 @@ class PostgresRepository(BaseRepository):
             cursor = conn.cursor()
             insert_query = """
                 INSERT INTO facts
-                (fact_number, fact_hash, fact, created_date)
-                VALUES (%s, %s, %s, %s)
+                (fact_number, fact_hash, fact, created_date, is_numeric)
+                VALUES (%s, %s, %s, %s, %s)
                 RETURNING id;
                 """
 
@@ -97,6 +97,7 @@ class PostgresRepository(BaseRepository):
                         item["fact_hash"],
                         item["fact"],
                         item["created_date"],
+                        item["is_numeric"],
                     ),
                 )
 
