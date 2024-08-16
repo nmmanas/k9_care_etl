@@ -1,0 +1,12 @@
+# Use the official Airflow image as a base
+FROM apache/airflow:2.6.1
+
+# Set the working directory in the container
+WORKDIR /opt/airflow
+
+# Copy the requirements.txt file to the container
+COPY requirements.txt .
+
+# Install the Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+

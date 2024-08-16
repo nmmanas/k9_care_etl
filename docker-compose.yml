@@ -1,32 +1,69 @@
 version: '3'
+
 services:
   postgres:
     image: postgres:13
     restart: unless-stopped
+    container_name: postgres_db
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
       POSTGRES_DB: k9_care
     ports:
-      - "54320:5432"
+      - "5433:5432"
     healthcheck:
-      test: "pg_isready --username=postgres && psql --username=password --list"
+      test: "pg_isready --username=postgres && psql --password=password --list"
       timeout: 10s
       retries: 20
     volumes:
       - db:/var/lib/postgresql/data
       - ./sql/init.sql:/docker-entrypoint-initdb.d/create_tables.sql
 
-  etl:
-    platform: linux/amd64
-    depends_on:
-        - postgres
-    build: 
-      context: ./
-      dockerfile: ./Dockerfile
+  airflow-webserver:
+    build:
+      context: .
+      dockerfile: ./Dockerfile.airflow
+    container_name: airflow_webserver
     environment:
-      - ENV=$ENV
-      - DB_URI=$DB_URI
+      AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+      AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://postgres:password@postgres_db:5432/k9_care
+      AIRFLOW__CORE__FERNET_KEY: ${FERNET_KEY:-myfernetkey}
+      AIRFLOW__CORE__DAGS_FOLDER: /opt/airflow/dags
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__WEBSERVER__SECRET_KEY: 39473103862280b8eea3dc67fb562b85
+      DB_URI: ${DB_URI}
+      ENV: ${ENV}
+    volumes:
+      - ./dags:/opt/airflow/dags
+      # - ./etl:/opt/airflow/etl
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    command: ["webserver"]
+    # command: ["airflow", "db", "init"]  # Run db init first
+
+  airflow-scheduler:
+    build:
+      context: .
+      dockerfile: ./Dockerfile.airflow
+    container_name: airflow_scheduler
+    environment:
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://postgres:password@postgres_db:5432/k9_care
+      AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+      AIRFLOW__CORE__FERNET_KEY: ${FERNET_KEY:-myfernetkey}
+      AIRFLOW__CORE__DAGS_FOLDER: /opt/airflow/dags
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__WEBSERVER__SECRET_KEY: 39473103862280b8eea3dc67fb562b85
+      DB_URI: ${DB_URI}
+      ENV: ${ENV}
+    volumes:
+      - ./dags:/opt/airflow/dags
+      # - ./etl:/opt/airflow/etl
+    depends_on:
+      - postgres
+      - airflow-webserver
+    command: ["scheduler"]
 
 volumes:
   db:
