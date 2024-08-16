@@ -1,4 +1,5 @@
 import psycopg2
+import psycopg2.pool
 
 from .base_repository import BaseRepository
 
@@ -63,7 +64,7 @@ class PostgresRepository(BaseRepository):
             if cursor is not None:
                 cursor.close()
             if conn is not None:
-                self._connection_pool(conn)
+                self._release_connection(conn)
 
     def save_facts_batch(self, facts):
         conn = None
@@ -116,7 +117,7 @@ class PostgresRepository(BaseRepository):
             if cursor is not None:
                 cursor.close()
             if conn is not None:
-                self._connection_pool(conn)
+                self._release_connection(conn)
 
     def find_similar_facts_by_buckets(self, bucket_hashes):
         conn = None
@@ -150,7 +151,7 @@ class PostgresRepository(BaseRepository):
             if cursor is not None:
                 cursor.close()
             if conn is not None:
-                self._connection_pool(conn)
+                self._release_connection(conn)
 
     def save_lsh_buckets_for_fact(self, fact_id, bucket_hashes, cursor=None):
         """
@@ -184,7 +185,7 @@ class PostgresRepository(BaseRepository):
                 if cursor is not None:
                     cursor.close()
                 if conn is not None:
-                    self._connection_pool(conn)
+                    self._release_connection(conn)
 
     def mark_as_expired(self, data):
         conn = None
@@ -210,4 +211,4 @@ class PostgresRepository(BaseRepository):
             if cursor is not None:
                 cursor.close()
             if conn is not None:
-                self._connection_pool(conn)
+                self._release_connection(conn)
