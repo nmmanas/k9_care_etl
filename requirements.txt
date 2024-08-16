@@ -7,3 +7,4 @@ python-dotenv
 datasketch
 scikit-learn
 rapidfuzz
+apache-airflow
