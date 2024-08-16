@@ -1,16 +1,20 @@
-import logging
 import time
 
 import requests
 
 from ..exceptions import MalformedJsonError
+from ..logging_config import LoggerManager
 from .base_extractor import BaseExtractor
+
+logging = LoggerManager.get_logger(__name__)
 
 
 class JSONURLExtractor(BaseExtractor):
     def __init__(self, url):
+        logging.info("Initialize extractor")
         self.url = url
 
+    @LoggerManager.log_execution
     def get_resource(self):
         """
         The function `get_resource` makes a GET request to a specified URL with
@@ -28,6 +32,8 @@ class JSONURLExtractor(BaseExtractor):
         retries = 3
         for attempt in range(retries):
             try:
+                logging.info(f"Attempt {attempt+1}/{retries}")
+                logging.info(f"Connecting to: {self.url}")
                 response = requests.get(self.url, timeout=5)
                 response.raise_for_status()
                 return response
@@ -36,13 +42,17 @@ class JSONURLExtractor(BaseExtractor):
                 requests.exceptions.Timeout,
             ) as e:
                 if attempt < retries - 1:
-                    time.sleep(2**attempt)  # Exponential backoff
+                    sleep_time = 2**attempt
+                    logging.error(f"Failed to reach resource at {self.url}")
+                    logging.error(f"Trying after: {sleep_time}s")
+                    time.sleep(sleep_time)  # Exponential backoff
                 else:
                     logging.error(
                         f"Failed to reach resource at {self.url}: {e}"
                     )
                     raise e  # Raise the exception after final retry
 
+    @LoggerManager.log_execution
     def extract(self):
         """
         The function `extract_data` retrieves JSON data from a resource,
@@ -59,8 +69,10 @@ class JSONURLExtractor(BaseExtractor):
 
             # Attempt to parse JSON content
             try:
+                logging.info("Attempt to parse json")
                 return response.json()
             except ValueError as e:
+                logging.error("The JSON file is malformed")
                 raise MalformedJsonError("The JSON file is malformed") from e
 
         except MalformedJsonError as e:
