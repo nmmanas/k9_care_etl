@@ -3,14 +3,18 @@ import re
 
 from spellchecker import SpellChecker
 
+from ..logging_config import LoggerManager
 from .base_transformer import BaseTransformer
 from .constants import hyphenated_numbers_pattern, number_words
 from .fact_datetime_validator import DateTimeValidator
 from .fact_version_manager import FactVersionManager
 
+logging = LoggerManager.get_logger(__name__)
+
 
 class FactTransformer(BaseTransformer):
     def __init__(self, data_repository, required_keys=None):
+        logging.info("Initialize Transformer")
         self.data_repository = data_repository
         self.version_manager = FactVersionManager(data_repository)
         self.datetime_validator = DateTimeValidator()
@@ -18,6 +22,7 @@ class FactTransformer(BaseTransformer):
             required_keys = ["fact", "created_date"]
         self.required_keys = required_keys
 
+    @LoggerManager.log_execution
     def transform(self, data):
         """
         Clean and process the input data, returning the transformed result.
@@ -26,6 +31,7 @@ class FactTransformer(BaseTransformer):
         processed_data, expired = self.process_data(cleaned_data)
         return processed_data, expired
 
+    @LoggerManager.log_execution
     def cleanup_data(self, data):
         """
         Clean the data by removing whitespaces, dropping blank entries, and
@@ -41,14 +47,17 @@ class FactTransformer(BaseTransformer):
 
         return no_duplicates
 
+    @LoggerManager.log_execution
     def sort_facts_by_created_date(self, data):
         data.sort(key=lambda x: x["created_date"])
 
+    @LoggerManager.log_execution
     def process_data(self, data):
         versioned_data, expired = self.identify_versions(data)
         categorized_data = self.categorize_numeric_facts(versioned_data)
         return categorized_data, expired
 
+    @LoggerManager.log_execution
     def clean_whitespaces(self, data):
         """
         This function removes extra whitespaces from the "fact" field in each
@@ -67,6 +76,7 @@ class FactTransformer(BaseTransformer):
             fact["fact"] = " ".join(fact["fact"].split()).strip()
         return data
 
+    @LoggerManager.log_execution
     def drop_blanks(self, data):
         """
         This functions iterates through the input list and drops any blank
@@ -75,6 +85,7 @@ class FactTransformer(BaseTransformer):
         facts = []
         for fact in data:
             if fact["fact"] == "":
+                logging.info(f"blank 'fact' found in record: {fact}")
                 continue
             facts.append(fact)
         return facts
@@ -112,6 +123,7 @@ class FactTransformer(BaseTransformer):
             fact["fact"] = " ".join(corrected_words)
         return data
 
+    @LoggerManager.log_execution
     def deduplication(self, data):
         """
         The `deduplication` function removes duplicate facts from the input
@@ -133,12 +145,16 @@ class FactTransformer(BaseTransformer):
 
             # check if we saw the fact in this batch and skip if yes
             if hash_ in hash_set:
+                logging.info(
+                    f"hash already found in the batch: {fact['fact']}"
+                )
                 continue
 
             hash_set.add(hash_)
 
             # check if the fact is present in the data repository
             if self.data_repository.fact_exists(hash_):
+                (f"hash already found in the data store: {fact['fact']}")
                 continue
 
             # store hash of the fact for persisting
@@ -148,6 +164,7 @@ class FactTransformer(BaseTransformer):
 
         return unique_facts
 
+    @LoggerManager.log_execution
     def identify_versions(self, data):
         """
         Identify and manage versions of facts:
@@ -164,6 +181,7 @@ class FactTransformer(BaseTransformer):
         for fact in data:
             expired_fact_id = self.version_manager.match_and_find_version(fact)
             if expired_fact_id:
+                logging.info(f"fact_id {expired_fact_id} is set to expire")
                 expired.append(expired_fact_id)
         return data, expired
 
@@ -183,6 +201,7 @@ class FactTransformer(BaseTransformer):
 
         return False
 
+    @LoggerManager.log_execution
     def categorize_numeric_facts(self, data):
         for fact in data:
             if "fact" in fact:
@@ -190,16 +209,17 @@ class FactTransformer(BaseTransformer):
                     fact["is_numeric"] = True
                 else:
                     fact["is_numeric"] = False
-
+                logging.info(f"{fact['fact']} is numeric {fact['is_numeric']}")
         return data
 
+    @LoggerManager.log_execution
     def validate_datetime(self, data):
         validated_data = []
         for record in data:
             date_string = record.get("created_date")
 
             if not date_string:
-                print(f"Missing date in record: {record}")
+                logging.info(f"'created_date' is missing in record: {record}")
                 continue
 
             validated_date = self.datetime_validator.validate(date_string)
@@ -207,13 +227,16 @@ class FactTransformer(BaseTransformer):
                 record["parsed_date"] = validated_date
                 validated_data.append(record)
             else:
-                print(f"Invalid record: {record}")
+                logging.info(f"Invalid record: {record}")
 
         return validated_data
 
+    @LoggerManager.log_execution
     def validate_keys(self, data):
         validated_data = []
         for record in data:
             if all(key in record for key in self.required_keys):
                 validated_data.append(record)
+            else:
+                logging.info(f"Record dropped: {record}")
         return validated_data

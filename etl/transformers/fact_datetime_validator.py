@@ -1,9 +1,14 @@
 import re
 from datetime import datetime
 
+from ..logging_config import LoggerManager
+
+logging = LoggerManager.get_logger(__name__)
+
 
 class DateTimeValidator:
     def __init__(self, min_date=None, max_date=None):
+        logging.info("Initialized DateTimeValidator")
         self.min_date = min_date if min_date else datetime(2000, 1, 1)
         self.max_date = max_date if max_date else datetime(2100, 12, 31)
         self.pattern = r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$"

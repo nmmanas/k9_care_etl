@@ -2,11 +2,16 @@ from datasketch import MinHash
 from rapidfuzz import fuzz
 from sklearn.feature_extraction.text import TfidfVectorizer
 
+from ..logging_config import LoggerManager
+
+logging = LoggerManager.get_logger(__name__)
+
 
 class FactVersionManager:
     def __init__(
         self, data_repository, num_perm=128, num_buckets=5, threshold=70
     ):
+        logging.info("Initialize FactVersionManager")
         self.data_repository = data_repository
         self.num_perm = num_perm
         self.num_buckets = num_buckets
@@ -52,6 +57,10 @@ class FactVersionManager:
         fact["bucket_hashes"] = bucket_hashes
         candidates = self.get_similar_fact_ids(bucket_hashes)
 
+        logging.info(
+            f"Found {len(candidates)} candidate(s) for: {fact['fact']}"
+        )
+
         if len(candidates) == 0:
             return None
 
@@ -65,9 +74,16 @@ class FactVersionManager:
             if fuzz.ratio(current_fact, candidate[2]) > self.threshold
         ]
 
+        logging.info(
+            f"Found {len(match_scores)} candidate(s) passing the threshold"
+        )
+
         if len(match_scores) == 0:
             return None
 
         top_scorer = max(match_scores, key=lambda x: x[2])
+
+        logging.info(f"Found previous version {top_scorer}")
         fact["fact_number"] = top_scorer[1]
+
         return top_scorer[0]
