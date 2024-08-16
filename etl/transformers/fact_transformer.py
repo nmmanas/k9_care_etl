@@ -5,6 +5,7 @@ from spellchecker import SpellChecker
 
 from .base_transformer import BaseTransformer
 from .constants import hyphenated_numbers_pattern, number_words
+from .fact_datetime_validator import DateTimeValidator
 from .fact_version_manager import FactVersionManager
 
 
@@ -12,6 +13,7 @@ class FactTransformer(BaseTransformer):
     def __init__(self, data_repository):
         self.data_repository = data_repository
         self.version_manager = FactVersionManager(data_repository)
+        self.datetime_validator = DateTimeValidator()
 
     def transform(self, data):
         """
@@ -27,11 +29,16 @@ class FactTransformer(BaseTransformer):
         deduplicating.
         Returns the cleaned data.
         """
-        no_whitespaces = self.clean_whitespaces(data)
+        self.sort_facts_by_created_date(data)
+        date_validated = self.validate_datetime(data)
+        no_whitespaces = self.clean_whitespaces(date_validated)
         no_blanks = self.drop_blanks(no_whitespaces)
         no_duplicates = self.deduplication(no_blanks)
 
         return no_duplicates
+
+    def sort_facts_by_created_date(self, data):
+        data.sort(key=lambda x: x["created_date"])
 
     def process_data(self, data):
         versioned_data, expired = self.identify_versions(data)
@@ -181,3 +188,21 @@ class FactTransformer(BaseTransformer):
                     fact["is_numeric"] = False
 
         return data
+
+    def validate_datetime(self, data):
+        validated_data = []
+        for record in data:
+            date_string = record.get("created_date")
+
+            if not date_string:
+                print(f"Missing date in record: {record}")
+                continue
+
+            validated_date = self.datetime_validator.validate(date_string)
+            if validated_date:
+                record["parsed_date"] = validated_date
+                validated_data.append(record)
+            else:
+                print(f"Invalid record: {record}")
+
+        return validated_data
