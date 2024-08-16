@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import pytest
 from psycopg2 import OperationalError
 
@@ -87,18 +89,26 @@ class TestPostgresRepository:
         mock_cursor = db_connect_mock["mock_cursor"]
 
         mock_cursor.fetchone.return_value = [1]
+        created_date_1 = "2024-08-14T12:34:56.789Z"
+        created_date_2 = "2024-08-15T12:34:56.789Z"
         facts = [
             {
                 "fact_hash": "hash1",
                 "fact": "Fact 1",
-                "created_date": "2024-08-14",
+                "created_date": created_date_1,
                 "is_numeric": True,
+                "parsed_date": datetime.strptime(
+                    created_date_1, "%Y-%m-%dT%H:%M:%S.%fZ"
+                ),
             },
             {
                 "fact_hash": "hash2",
                 "fact": "Fact 2",
-                "created_date": "2024-08-14",
+                "created_date": created_date_2,
                 "is_numeric": True,
+                "parsed_date": datetime.strptime(
+                    created_date_2, "%Y-%m-%dT%H:%M:%S.%fZ"
+                ),
             },
         ]
 
