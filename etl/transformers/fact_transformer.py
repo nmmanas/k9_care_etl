@@ -10,10 +10,13 @@ from .fact_version_manager import FactVersionManager
 
 
 class FactTransformer(BaseTransformer):
-    def __init__(self, data_repository):
+    def __init__(self, data_repository, required_keys=None):
         self.data_repository = data_repository
         self.version_manager = FactVersionManager(data_repository)
         self.datetime_validator = DateTimeValidator()
+        if required_keys is None:
+            required_keys = ["fact", "created_date"]
+        self.required_keys = required_keys
 
     def transform(self, data):
         """
@@ -29,8 +32,9 @@ class FactTransformer(BaseTransformer):
         deduplicating.
         Returns the cleaned data.
         """
-        self.sort_facts_by_created_date(data)
-        date_validated = self.validate_datetime(data)
+        keys_validated = self.validate_keys(data)
+        date_validated = self.validate_datetime(keys_validated)
+        self.sort_facts_by_created_date(date_validated)
         no_whitespaces = self.clean_whitespaces(date_validated)
         no_blanks = self.drop_blanks(no_whitespaces)
         no_duplicates = self.deduplication(no_blanks)
@@ -205,4 +209,11 @@ class FactTransformer(BaseTransformer):
             else:
                 print(f"Invalid record: {record}")
 
+        return validated_data
+
+    def validate_keys(self, data):
+        validated_data = []
+        for record in data:
+            if all(key in record for key in self.required_keys):
+                validated_data.append(record)
         return validated_data
