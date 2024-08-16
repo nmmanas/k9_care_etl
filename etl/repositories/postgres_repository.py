@@ -1,13 +1,17 @@
 import psycopg2
 import psycopg2.pool
 
+from ..logging_config import LoggerManager
 from .base_repository import BaseRepository
+
+logging = LoggerManager.get_logger(__name__)
 
 
 class PostgresRepository(BaseRepository):
     _connection_pool = None
 
     def __init__(self, db_uri):
+        logging.info("PostgresRepository DateTimeValidator")
         if PostgresRepository._connection_pool is None:
             PostgresRepository._connection_pool = (
                 psycopg2.pool.SimpleConnectionPool(
@@ -36,7 +40,7 @@ class PostgresRepository(BaseRepository):
             result = cursor.fetchone()
             return result[0]
         except Exception as e:
-            print(f"An error occurred: {e}")
+            logging.error(f"An error occurred: {e}")
             raise
         finally:
             if cursor is not None:
@@ -58,7 +62,7 @@ class PostgresRepository(BaseRepository):
             return last_number
 
         except Exception as e:
-            print(f"An error occurred: {e}")
+            logging.error(f"An error occurred: {e}")
             raise
         finally:
             if cursor is not None:
@@ -66,6 +70,7 @@ class PostgresRepository(BaseRepository):
             if conn is not None:
                 self._release_connection(conn)
 
+    @LoggerManager.log_execution
     def save_facts_batch(self, facts):
         conn = None
         cursor = None
@@ -109,7 +114,7 @@ class PostgresRepository(BaseRepository):
                     )
             conn.commit()
         except Exception as e:
-            print(f"An error occurred: {e}")
+            logging.error(f"An error occurred: {e}")
             if conn is not None:
                 conn.rollback()
             raise
@@ -143,7 +148,7 @@ class PostgresRepository(BaseRepository):
                 )
             return list(facts)
         except Exception as e:
-            print(f"An error occurred: {e}")
+            logging.error(f"An error occurred: {e}")
             if conn is not None:
                 conn.rollback()
             raise
@@ -176,7 +181,7 @@ class PostgresRepository(BaseRepository):
                     (fact_id, bucket_hash),
                 )
         except Exception as e:
-            print(f"An error occurred: {e}")
+            logging.error(f"An error occurred: {e}")
             if local_cursor:
                 conn.rollback()
             raise
@@ -203,7 +208,7 @@ class PostgresRepository(BaseRepository):
                 )
             conn.commit()
         except Exception as e:
-            print(f"An error occurred: {e}")
+            logging.error(f"An error occurred: {e}")
             if conn is not None:
                 conn.rollback()
             raise
