@@ -1,10 +1,10 @@
-from etl.config import Config
-from etl.error_reporting import ErrorReporter
-from etl.extractors import JSONURLExtractor
-from etl.loaders.facts_loader import FactsLoader
-from etl.logging_config import LoggerManager
-from etl.repositories.postgres_repository import PostgresRepository
-from etl.transformers.fact_transformer import FactTransformer
+from dags.etl.config import Config
+from dags.etl.error_reporting import ErrorReporter
+from dags.etl.extractors import JSONURLExtractor
+from dags.etl.loaders.facts_loader import FactsLoader
+from dags.etl.logging_config import LoggerManager
+from dags.etl.repositories.postgres_repository import PostgresRepository
+from dags.etl.transformers.fact_transformer import FactTransformer
 
 # get logging
 logging = LoggerManager.get_logger(__name__)
