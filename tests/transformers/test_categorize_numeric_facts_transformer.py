@@ -9,10 +9,11 @@ class TestCategorizeNumericFacts:
     @pytest.fixture
     def fact_transformer_instance(self, mocker, data_repository_mock):
         """
-        Fixture to create an instance of the class containing the categorize_numeric_facts method.
+        Fixture to create an instance of the class containing the
+        categorize_numeric_facts method.
         """
 
-        from ...etl.transformers import FactTransformer
+        from ...dags.etl.transformers import FactTransformer
 
         instance = FactTransformer(data_repository=data_repository_mock)
 
@@ -53,7 +54,8 @@ class TestCategorizeNumericFacts:
 
     def test_categorize_numeric_facts_mixed(self, fact_transformer_instance):
         """
-        Test categorize_numeric_facts with a mix of numeric and non-numeric facts.
+        Test categorize_numeric_facts with a mix of numeric and non-numeric
+        facts.
         """
         data = [
             {"fact": "Fact 1"},

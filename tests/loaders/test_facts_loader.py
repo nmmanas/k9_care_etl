@@ -23,7 +23,7 @@ class TestFactsLoader:
         ]
         # Mock the psycopg2.connect method
         data_repository = mocker.Mock()
-        from ...etl.loaders import FactsLoader
+        from ...dags.etl.loaders import FactsLoader
 
         # Call the function with test data
         FactsLoader(data_repository).load(test_data, [])

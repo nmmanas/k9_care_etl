@@ -26,7 +26,7 @@ def datetime_validator_mock(mocker):
 def fact_transformer_instance(
     data_repository_mock, version_manager_mock, datetime_validator_mock
 ):
-    from ...etl.transformers import FactTransformer
+    from ...dags.etl.transformers import FactTransformer
 
     transformer = FactTransformer(data_repository=data_repository_mock)
     transformer.version_manager = version_manager_mock
@@ -37,7 +37,7 @@ def fact_transformer_instance(
 
 @pytest.fixture
 def fact_version_manager(data_repository_mock):
-    from ...etl.transformers import FactVersionManager
+    from ...dags.etl.transformers import FactVersionManager
 
     return FactVersionManager(data_repository_mock)
 
@@ -48,6 +48,6 @@ def date_time_validator():
     Fixture to create an instance of DateTimeValidator
     with default min and max dates.
     """
-    from ...etl.transformers import DateTimeValidator
+    from ...dags.etl.transformers import DateTimeValidator
 
     return DateTimeValidator()

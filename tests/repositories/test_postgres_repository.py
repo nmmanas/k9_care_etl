@@ -175,7 +175,7 @@ class TestPostgresRepository:
         Test if exception is raised when connection pool is not initialized.
         """
 
-        from ...etl.repositories import PostgresRepository
+        from ...dags.etl.repositories import PostgresRepository
 
         # Force uninitialize the pool
         PostgresRepository._connection_pool = None

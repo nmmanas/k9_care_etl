@@ -9,7 +9,7 @@ def db_uri():
 @pytest.fixture
 def postgres_repository(db_uri):
     # Mock the SimpleConnectionPool for the duration of this fixture
-    from ...etl.repositories import PostgresRepository
+    from ...dags.etl.repositories import PostgresRepository
 
     # Reset the connection pool before each test to avoid shared state issues
     PostgresRepository._connection_pool = None
