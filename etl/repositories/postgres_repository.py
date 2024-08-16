@@ -97,7 +97,7 @@ class PostgresRepository(BaseRepository):
                         fact_number,
                         item["fact_hash"],
                         item["fact"],
-                        item["created_date"],
+                        item["parsed_date"],
                         item["is_numeric"],
                     ),
                 )
