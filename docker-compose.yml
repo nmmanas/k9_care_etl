@@ -8,7 +8,7 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
-      POSTGRES_DB: k9_care
+      POSTGRES_DB: airflow
     ports:
       - "5433:5432"
     healthcheck:
@@ -17,53 +17,66 @@ services:
       retries: 20
     volumes:
       - db:/var/lib/postgresql/data
-      - ./sql/init.sql:/docker-entrypoint-initdb.d/create_tables.sql
+      - ./sql/create_db.sql:/docker-entrypoint-initdb.d/00_create_db.sql
+      - ./sql/create_tables.sql:/docker-entrypoint-initdb.d/01_create_tables.sql
+
+  airflow-init:
+    build:
+      context: .
+      dockerfile: ./Dockerfile.airflow
+    entrypoint: |
+      /bin/bash -c \
+      "airflow db init && \
+       airflow users create --username admin --password admin --firstname Air --lastname Flow --role Admin --email admin@example.com"
+    environment:
+      AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://postgres:password@postgres/airflow
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+    depends_on:
+      - postgres
 
   airflow-webserver:
     build:
       context: .
       dockerfile: ./Dockerfile.airflow
-    container_name: airflow_webserver
+    restart: always
+    depends_on:
+      - postgres
+      - airflow-init
     environment:
+      AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://postgres:password@postgres/airflow
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
       AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
-      AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://postgres:password@postgres_db:5432/k9_care
       AIRFLOW__CORE__FERNET_KEY: ${FERNET_KEY:-myfernetkey}
       AIRFLOW__CORE__DAGS_FOLDER: /opt/airflow/dags
-      AIRFLOW__CORE__EXECUTOR: LocalExecutor
-      AIRFLOW__WEBSERVER__SECRET_KEY: 39473103862280b8eea3dc67fb562b85
+      AIRFLOW__WEBSERVER__SECRET_KEY: ${AIRFLOW_SECRET}
       DB_URI: ${DB_URI}
       ENV: ${ENV}
     volumes:
       - ./dags:/opt/airflow/dags
-      # - ./etl:/opt/airflow/etl
     ports:
       - "8080:8080"
-    depends_on:
-      - postgres
-    command: ["webserver"]
-    # command: ["airflow", "db", "init"]  # Run db init first
+    command: "airflow webserver"
 
   airflow-scheduler:
     build:
       context: .
       dockerfile: ./Dockerfile.airflow
-    container_name: airflow_scheduler
+    restart: always
+    depends_on:
+      - postgres
+      - airflow-init
     environment:
-      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://postgres:password@postgres_db:5432/k9_care
+      AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://postgres:password@postgres/airflow
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
       AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
       AIRFLOW__CORE__FERNET_KEY: ${FERNET_KEY:-myfernetkey}
       AIRFLOW__CORE__DAGS_FOLDER: /opt/airflow/dags
-      AIRFLOW__CORE__EXECUTOR: LocalExecutor
-      AIRFLOW__WEBSERVER__SECRET_KEY: 39473103862280b8eea3dc67fb562b85
+      AIRFLOW__WEBSERVER__SECRET_KEY: ${AIRFLOW_SECRET}
       DB_URI: ${DB_URI}
       ENV: ${ENV}
     volumes:
       - ./dags:/opt/airflow/dags
-      # - ./etl:/opt/airflow/etl
-    depends_on:
-      - postgres
-      - airflow-webserver
-    command: ["scheduler"]
+    command: "airflow scheduler"
 
 volumes:
   db:

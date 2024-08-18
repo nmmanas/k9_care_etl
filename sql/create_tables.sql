@@ -1,3 +1,7 @@
+-- connect to new db
+\connect k9_care
+
+-- create tables
 CREATE TABLE IF NOT EXISTS facts(
     id                      SERIAL PRIMARY KEY,
     fact_number             INTEGER NOT NULL,
