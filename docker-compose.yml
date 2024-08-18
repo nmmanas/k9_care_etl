@@ -48,7 +48,7 @@ services:
       AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
       AIRFLOW__CORE__FERNET_KEY: ${FERNET_KEY:-myfernetkey}
       AIRFLOW__CORE__DAGS_FOLDER: /opt/airflow/dags
-      AIRFLOW__WEBSERVER__SECRET_KEY: 39473103862280b8eea3dc67fb562b85
+      AIRFLOW__WEBSERVER__SECRET_KEY: ${AIRFLOW_SECRET}
       DB_URI: ${DB_URI}
       ENV: ${ENV}
     volumes:
@@ -71,7 +71,7 @@ services:
       AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
       AIRFLOW__CORE__FERNET_KEY: ${FERNET_KEY:-myfernetkey}
       AIRFLOW__CORE__DAGS_FOLDER: /opt/airflow/dags
-      AIRFLOW__WEBSERVER__SECRET_KEY: 39473103862280b8eea3dc67fb562b85
+      AIRFLOW__WEBSERVER__SECRET_KEY: ${AIRFLOW_SECRET}
       DB_URI: ${DB_URI}
       ENV: ${ENV}
     volumes:
