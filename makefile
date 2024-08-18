@@ -11,3 +11,6 @@ run-docker-compose:
 	sudo docker-compose --env-file .env.docker up
 
 build-and-run-docker-compose: build-docker-compose run-docker-compose
+
+clean-docker:
+	sudo docker-compose down --remove-orphans --volumes

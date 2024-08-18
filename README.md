@@ -83,7 +83,7 @@ Before you begin, ensure you have met the following requirements:
    Ensure Docker is running, then execute the following command to set up the environment:
 
    ```bash
-   docker-compose up -d
+   docker-compose --env-file .env.docker up -d
    ```
 
    This will build and start the Airflow containers, setting up the ETL environment.
@@ -123,7 +123,7 @@ Before you begin, ensure you have met the following requirements:
 
 2. **Trigger the ETL Process:**
 
-   In the Airflow web interface, navigate to the `etl_dag` and trigger it manually or set it up for scheduled runs.
+   In the Airflow web interface, navigate to the `etl_pipeline` and trigger it manually. By default it is set to run daily.
 
 3. **Monitor the ETL Process:**
 
@@ -153,22 +153,4 @@ Before you begin, ensure you have met the following requirements:
 
    Integration tests are included to validate the entire ETL pipeline. Ensure Docker is running, then execute the tests.
 
-### **Deployment**
-
-1. **Production Deployment:**
-
-   For production, the ETL pipeline can be deployed using a cloud-based Docker orchestration tool such as Kubernetes. Ensure the environment variables are set appropriately for the production environment.
-
-2. **Scaling:**
-
-   The system is designed to scale horizontally by adding more workers to the Airflow cluster. Update the `docker-compose.yml` to increase the number of worker instances.
-
-```json
-facts = [
-   {
-	   “fact”: “interesting fact!”,
-	   “Created_date”: "2023-12-12T15:44:51.527Z"
-   },
-   …
-]
-```
+   \<Curently not implemented\>
