@@ -21,9 +21,7 @@ services:
       - ./sql/create_tables.sql:/docker-entrypoint-initdb.d/01_create_tables.sql
 
   airflow-init:
-    build:
-      context: .
-      dockerfile: ./Dockerfile.airflow
+    image: apache/airflow:2.7.0
     entrypoint: |
       /bin/bash -c \
       "airflow db init && \
